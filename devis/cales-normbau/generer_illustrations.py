@@ -134,7 +134,7 @@ FONT_B = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 
 
-def card(man, title, tag, accent, lines, path):
+def card(man, title, accent, path):
     SS = 2
     col, mask, edge = render(man, size=(1500 * SS, 1000 * SS), scale=17.0 * SS)
     part = to_image(col, mask, edge).resize((1500, 1000), Image.LANCZOS)
@@ -143,38 +143,18 @@ def card(man, title, tag, accent, lines, path):
     pad.paste(part, (100, 100))
     part = pad.crop((bbox[0] + 60, bbox[1] + 60, bbox[2] + 140, bbox[3] + 140))
 
-    W_, H_ = 1400, 1050
+    W_, H_ = 1400, 820
     canvas = Image.new("RGB", (W_, H_), (255, 255, 255))
     d = ImageDraw.Draw(canvas)
     d.rectangle((0, 0, W_, 14), fill=accent)
-    d.text((60, 50), tag, font=ImageFont.truetype(FONT_B, 30), fill=accent)
-    d.text((60, 92), title, font=ImageFont.truetype(FONT_B, 54), fill=(30, 33, 40))
-    maxw, maxh = W_ - 120, 560
+    d.text((60, 50), title, font=ImageFont.truetype(FONT_B, 54), fill=(30, 33, 40))
+    maxw, maxh = W_ - 120, 600
     k = min(maxw / part.width, maxh / part.height, 1.0)
     part = part.resize((int(part.width * k), int(part.height * k)), Image.LANCZOS)
-    canvas.paste(part, ((W_ - part.width) // 2, 180 + (maxh - part.height) // 2))
-    y = 770
-    f = ImageFont.truetype(FONT, 30)
-    for ln in lines:
-        d.ellipse((66, y + 10, 80, y + 24), fill=accent)
-        d.text((100, y), ln, font=f, fill=(45, 48, 56))
-        y += 52
-    d.text((60, H_ - 50), "Illustration de principe – formes et cotes définitives après relevé sur site",
-           font=ImageFont.truetype(FONT, 22), fill=(130, 134, 142))
+    canvas.paste(part, ((W_ - part.width) // 2, 160 + (maxh - part.height) // 2))
     canvas.save(path)
 
 
-card(cale_pleine(), "Cale pleine", "VERSION A", (40, 90, 160),
-     ["Face d'appui pleine sur toute la surface",
-      "Rigidité maximale au serrage des vis",
-      "Aucune alvéole : entretien facile en sanitaire",
-      "Matière / temps d'impression : référence"],
-     f"{OUT}/cale_version_A_pleine.png")
-
-card(cale_evidee(), "Cale évidée nervurée", "VERSION B", (200, 110, 30),
-     ["Parois et nervures de renfort, bossages autour des vis",
-      "Pièce plus légère, même encombrement",
-      "Environ 45 % de matière et de temps d'impression en moins",
-      "Alvéoles à placer côté support (non visibles)"],
-     f"{OUT}/cale_version_B_evidee.png")
+card(cale_pleine(), "Version cale pleine", (40, 90, 160), f"{OUT}/cale_version_A_pleine.png")
+card(cale_evidee(), "Version cale évidée nervurée", (200, 110, 30), f"{OUT}/cale_version_B_evidee.png")
 print("ok")
