@@ -131,10 +131,11 @@ def verso(b):
             cart.append(f'<text x="{bx+12}" y="{by}" font-family="Barlow" font-weight="500" '
                         f'font-size="2.8" letter-spacing="0.1" fill="{INK}">{val}</text>')
 
-    svc = [("01", "Réalisation de plans", None),
-           ("02", "Création de composants de bibliothèque", None)]
+    svc = [("01", "Bureau d’études TopSolid’Wood", None),
+           ("02", "Impression 3D", None),
+           ("03", "Sérigraphie et pictogrammes", None)]
     t = []
-    y = 17.2
+    y = 16.3
     for num, l1, l2 in svc:
         t.append(f'<text x="{x0}" y="{y}" font-family="Josefin Sans" font-weight="600" '
                  f'font-size="2.6" fill="{BLUE}">{num}</text>')
@@ -142,11 +143,11 @@ def verso(b):
         if l2:
             y += 3.9
             t.append(f'<text x="{x0+5.2}" y="{y}" font-family="Barlow" font-size="2.9" fill="{INK}">{l2}</text>')
-        y += 6.2
+        y += 5.3
 
     head = (f'<text x="{x0}" y="10.4" font-family="Josefin Sans" font-weight="600" font-size="2.3" '
-            f'letter-spacing="0.75" fill="{BLUE}">TOPSOLID\'WOOD</text>'
-            f'<path d="M{x0+31.5} 9.6H{x1}" stroke="{BLUE}" stroke-width="0.14"/>')
+            f'letter-spacing="0.75" fill="{BLUE}">ACTIVITÉS</text>'
+            f'<path d="M{x0+22.5} 9.6H{x1}" stroke="{BLUE}" stroke-width="0.14"/>')
 
     return f'''{fond(b)}
 {head}
