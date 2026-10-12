@@ -110,7 +110,7 @@ def recto(b):
 def verso(b):
     x0, x1 = 9.0, 76.0
     bx = 27.0                       # cartouche
-    rows = [("NOM", NOM), ("POSTE", FONCTION), ("TÉL", TEL), ("MAIL", MAIL)]
+    rows = [("NOM", NOM), ("STATUT", "Micro-entreprise"), ("TÉL", TEL), ("MAIL", MAIL)]
     rh, top = 4.0, 31.5
     cart = [f'<rect x="{bx}" y="{top}" width="{x1-bx}" height="{rh*4}" '
             f'fill="#FFFFFF" stroke="{INK}" stroke-width="0.22"/>',
@@ -120,7 +120,7 @@ def verso(b):
     for k, (lab, val) in enumerate(rows):
         by = top + rh * k + 2.75
         cart.append(f'<text x="{bx+1.2}" y="{by-0.15}" font-family="Josefin Sans" '
-                    f'font-weight="400" font-size="1.75" letter-spacing="0.45" fill="{BLUE}">{lab}</text>')
+                    f'font-weight="400" font-size="1.7" letter-spacing="0.3" fill="{BLUE}">{lab}</text>')
         if k == 0:
             cart.append(f'<text x="{bx+12}" y="{by+0.2}" font-family="Josefin Sans" font-weight="600" '
                         f'font-size="3.3" letter-spacing="0.15" fill="{INK}">{val}</text>')
