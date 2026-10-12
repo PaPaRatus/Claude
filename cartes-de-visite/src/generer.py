@@ -132,18 +132,17 @@ def verso(b):
                         f'font-size="2.8" letter-spacing="0.1" fill="{INK}">{val}</text>')
 
     svc = [("01", "Réalisation de plans", None),
-           ("02", "Création de composants de bibliothèque", None),
-           ("03", "Accompagnement au développement", "de votre processus de fabrication")]
+           ("02", "Création de composants de bibliothèque", None)]
     t = []
-    y = 15.0
+    y = 17.2
     for num, l1, l2 in svc:
         t.append(f'<text x="{x0}" y="{y}" font-family="Josefin Sans" font-weight="600" '
-                 f'font-size="2.5" fill="{BLUE}">{num}</text>')
-        t.append(f'<text x="{x0+5.2}" y="{y}" font-family="Barlow" font-size="2.9" fill="{INK}">{l1}</text>')
+                 f'font-size="2.6" fill="{BLUE}">{num}</text>')
+        t.append(f'<text x="{x0+5.2}" y="{y}" font-family="Barlow" font-size="3.1" fill="{INK}">{l1}</text>')
         if l2:
             y += 3.9
             t.append(f'<text x="{x0+5.2}" y="{y}" font-family="Barlow" font-size="2.9" fill="{INK}">{l2}</text>')
-        y += 4.7
+        y += 6.2
 
     head = (f'<text x="{x0}" y="10.4" font-family="Josefin Sans" font-weight="600" font-size="2.3" '
             f'letter-spacing="0.75" fill="{BLUE}">TOPSOLID\'WOOD</text>'
