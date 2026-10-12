@@ -133,7 +133,7 @@ def verso(b):
 
     svc = [("01", "Bureau d’études TopSolid’Wood", None),
            ("02", "Impression 3D", None),
-           ("03", "Sérigraphie et pictogrammes", None)]
+           ("03", "Signalétique vinyle adhésif", None)]
     t = []
     y = 16.3
     for num, l1, l2 in svc:
