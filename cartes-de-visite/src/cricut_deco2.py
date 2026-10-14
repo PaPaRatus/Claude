@@ -104,11 +104,13 @@ def avec_cadre(fn_cadre, ornement=orn_losange):
 
 
 # ------------------------------------------------------------------ paysage
-def paysage(ornement=orn_necker):
+def paysage(ornement=orn_necker, deco=None, cadre=None):
     c = Carte(85, 55)
-    cadre_simple(c)
+    (cadre or cadre_simple)(c)
     cxl = 19.5
     mw = 18.5
+    if deco:
+        deco(c, cxl - mw / 2, 9.6, mw)
     c.monogramme("accent", cxl - mw / 2, 9.6, mw)
     c.texte("MARTIN", cxl, 35.4, 3.5, "noir", ls=1.35, anchor="middle")
     c.texte("JULIEN", cxl, 39.9, 2.0, "bleu", ls=1.4, anchor="middle")
