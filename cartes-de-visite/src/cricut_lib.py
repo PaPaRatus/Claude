@@ -162,7 +162,7 @@ class Carte:
 
 def render_png(svgs, out_png, page_w, page_h, bg="#E9E4DA", gap=6):
     """Rend une ou plusieurs cartes (liste de lignes de SVG) en PNG 400 dpi."""
-    out_png = Path(out_png)
+    out_png = Path(out_png).resolve()
     rows = "".join(f'<div class="r">{"".join(row)}</div>' for row in svgs)
     html = out_png.with_suffix(".html")
     pdf = out_png.with_suffix(".pdf")
