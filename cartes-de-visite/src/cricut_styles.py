@@ -14,8 +14,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from cricut_lib import GEL, Carte, render_png  # noqa: E402
 
-OUT = Path(sys.argv[1]).resolve()
-OUT.mkdir(parents=True, exist_ok=True)
 
 TEL = "06 23 35 95 60"
 MAIL = "martinjulien.be@gmail.com"
@@ -192,16 +190,25 @@ def nom_baton_double(c, cx):
     _nom_ajuste(c, "Julien Martin", cx, 40.8, 4.8, "rowmand", 0.2)
 
 
-def signature(nom=nom_cursive):
+def orn_losange(c, cx, cy):
+    """Ornement central du filet ; renvoie sa demi-largeur (pour couper le filet)."""
+    c.poly("bleu", [(cx, cy - 1.1), (cx + 1.1, cy), (cx, cy + 1.1), (cx - 1.1, cy), (cx, cy - 1.1)])
+    return 2.3
+
+
+def signature(nom=nom_cursive, ornement=orn_losange, deco=None):
     c = Carte(55, 85)
     cx = 27.5
     mw = 21.0
-    c.monogramme("accent", cx - mw / 2, 9.0, mw)
+    mono = (cx - mw / 2, 9.0, mw)
+    if deco:
+        deco(c, *mono)          # décor sous le monogramme (tracé avant lui)
+    c.monogramme("accent", *mono)
     nom(c, cx)
-    # filet avec losange central
-    c.ligne("bleu", (12.0, 46.0), (25.2, 46.0))
-    c.ligne("bleu", (29.8, 46.0), (43.0, 46.0))
-    c.poly("bleu", [(cx, 44.9), (cx + 1.1, 46.0), (cx, 47.1), (cx - 1.1, 46.0), (cx, 44.9)])
+    # filet avec ornement central
+    demi = ornement(c, cx, 46.0)
+    c.ligne("bleu", (12.0, 46.0), (cx - demi, 46.0))
+    c.ligne("bleu", (cx + demi, 46.0), (43.0, 46.0))
     for k, t in enumerate(("Bureau d’études TopSolid’Wood", "Impression 3D",
                            "Signalétique vinyle adhésif")):
         w = c.texte(t, cx, 52.2 + k * 4.2, 1.95, "noir", ls=0.04, sx=0.88, anchor="middle")
@@ -215,26 +222,29 @@ def signature(nom=nom_cursive):
 
 
 # ====================================================================== export
-STYLES = [("B_vue-en-coupe", vue_en_coupe()), ("C_filaire-3D", filaire_3d()),
-          ("D_signature", signature())]
+if __name__ == "__main__":
+    OUT = Path(sys.argv[1]).resolve()
+    OUT.mkdir(parents=True, exist_ok=True)
+    STYLES = [("B_vue-en-coupe", vue_en_coupe()), ("C_filaire-3D", filaire_3d()),
+              ("D_signature", signature())]
 
-# variantes du nom pour la carte verticale : une planche de comparaison
-VARIANTES = [("D1_capitales", nom_capitales), ("D2_romain", nom_romain),
-             ("D3_romain-capitales", nom_romain_capitales), ("D4_baton-double", nom_baton_double)]
-cartes = []
-for name, fn in VARIANTES:
-    c = signature(fn)
-    c.check()
-    (OUT / f"carte_cricut_{name}.svg").write_text(c.svg(), encoding="utf-8")
-    cartes.append(c)
-render_png([[c.svg(paper="#FBFAF6", preview=True) for c in cartes],
-            [c.svg(pens=GEL, paper="#1C1F24", preview=True) for c in cartes]],
-           OUT / "apercu_D_variantes-nom.png", page_w=4 * 55 + 30, page_h=2 * 85 + 20)
-for name, c in STYLES:
-    c.check()
-    (OUT / f"carte_cricut_{name}.svg").write_text(c.svg(), encoding="utf-8")
-    render_png([[c.svg(paper="#FBFAF6", preview=True)],
-                [c.svg(pens=GEL, paper="#1C1F24", preview=True)]],
-               OUT / f"apercu_{name}.png",
-               page_w=c.w + 12, page_h=2 * c.h + 20)
-    print(name, {k: len(v) for k, v in c.layers.items()})
+    # variantes du nom pour la carte verticale : une planche de comparaison
+    VARIANTES = [("D1_capitales", nom_capitales), ("D2_romain", nom_romain),
+                 ("D3_romain-capitales", nom_romain_capitales), ("D4_baton-double", nom_baton_double)]
+    cartes = []
+    for name, fn in VARIANTES:
+        c = signature(fn)
+        c.check()
+        (OUT / f"carte_cricut_{name}.svg").write_text(c.svg(), encoding="utf-8")
+        cartes.append(c)
+    render_png([[c.svg(paper="#FBFAF6", preview=True) for c in cartes],
+                [c.svg(pens=GEL, paper="#1C1F24", preview=True) for c in cartes]],
+               OUT / "apercu_D_variantes-nom.png", page_w=4 * 55 + 30, page_h=2 * 85 + 20)
+    for name, c in STYLES:
+        c.check()
+        (OUT / f"carte_cricut_{name}.svg").write_text(c.svg(), encoding="utf-8")
+        render_png([[c.svg(paper="#FBFAF6", preview=True)],
+                    [c.svg(pens=GEL, paper="#1C1F24", preview=True)]],
+                   OUT / f"apercu_{name}.png",
+                   page_w=c.w + 12, page_h=2 * c.h + 20)
+        print(name, {k: len(v) for k, v in c.layers.items()})
