@@ -66,19 +66,27 @@ def trace_regulateur(c, x0, y0, w):
 
 
 # ------------------------------------------------------------------ E2
-def relief(c, x0, y0, w, d=(0.8, 0.8), pas=0.95):
+def relief(c, x0, y0, w, d=(0.95, 0.95), pas=0.95):
     """Ombre portée hachurée à 45° : le monogramme semble posé en relief sur la carte."""
     s, P = _mm(x0, y0, w)
     dx, dy = d
     for poly in Carte.mono_polys():
         pts = [P(*q) for q in poly]
         reste = 0.0
+        dn = math.hypot(dx, dy)
         for (ax, ay), (bx, by) in zip(pts, pts[1:]):
             L = math.hypot(bx - ax, by - ay)
+            # trait presque parallèle à l'ombre : ombre quasi nulle, et les hachures
+            # recouvriraient le trait du monogramme -> pas de hachures
+            if L < 1e-9:
+                continue
+            if abs((bx - ax) * dy - (by - ay) * dx) / (L * dn) < 0.35:
+                reste = 0.0
+                continue
             t = reste
             while t < L:
                 px, py = ax + (bx - ax) * t / L, ay + (by - ay) * t / L
-                c.ligne("bleu", (px + dx * 0.2, py + dy * 0.2), (px + dx, py + dy))
+                c.ligne("bleu", (px + dx * 0.42, py + dy * 0.42), (px + dx, py + dy))
                 t += pas
             reste = t - L
 

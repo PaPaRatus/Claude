@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Sélection : monogramme en relief hachuré + cube isométrique (F03) + cadres F07 / F10 / F11.
+Bicolore : stylo noir + stylo bleu (l'accent or est fusionné dans le noir).
 
 Usage : python3 cricut_final.py <dossier_sortie>
 """
@@ -11,6 +12,13 @@ from cricut_lib import GEL, render_png                                    # noqa
 from cricut_styles import nom_capitales, signature                         # noqa: E402
 from cricut_deco import relief                                             # noqa: E402
 from cricut_deco2 import cadre_equerres, cadre_simple, orn_cube, paysage   # noqa: E402
+
+
+def bicolore(c):
+    """Deux stylos seulement : tout ce qui était sur le calque or passe au noir."""
+    c.layers["noir"] += c.layers["accent"]
+    c.layers["accent"] = []
+    return c
 
 
 def vertical(cadre):
@@ -31,7 +39,7 @@ if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     cartes = []
     for name, fn in SELECTION:
-        c = fn()
+        c = bicolore(fn())
         c.check()
         (OUT / f"carte_cricut_{name}.svg").write_text(c.svg(), encoding="utf-8")
         cartes.append(c)
