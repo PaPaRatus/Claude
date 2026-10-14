@@ -132,6 +132,15 @@ def arc_pts(cx, cy, r, a0, a1, n=24):
              cy + r * math.sin(math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]
 
 
+def point_dans_poly(x, y, poly):
+    """Test pair-impair d'un point dans un polygone fermé."""
+    dedans = False
+    for (x1, y1), (x2, y2) in zip(poly, poly[1:]):
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            dedans = not dedans
+    return dedans
+
+
 def rrect_pts(x, y, w, h, r, n=12):
     if r <= 0:
         return [(x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y)]
@@ -152,6 +161,7 @@ class Dessin:
         self.couleurs = dict(STYLOS)
         self.couleurs.update(couleurs or {})
         self.couches = {c: [] for c in couches}
+        self.rainages = []                       # lignes de pli (opération « Rainage » de Design Space)
 
     # -------------------------------------------------------------- primitives
     def _c(self, couche):
@@ -240,11 +250,16 @@ class Dessin:
 
     def texte_ajuste(self, s, x, y, cap, couche, wmax, ls=0.0, sx=1.0, ancre="start",
                      police="futural", cap_min=1.6, sx_min=0.82):
-        """Écrit en réduisant d'abord la condensation (sx) puis la taille pour tenir dans wmax.
+        """Écrit en réduisant d'abord la condensation (sx), puis l'espacement des lettres
+        (jusqu'à 40 %), puis la taille, pour tenir dans wmax.
         Renvoie (largeur, cap, sx) ; lève ValueError si impossible au-dessus de cap_min."""
         w = self.largeur(s, cap, ls, sx, police)
         while w > wmax and sx > sx_min + 1e-9:
             sx = max(sx_min, sx - 0.02)
+            w = self.largeur(s, cap, ls, sx, police)
+        ls_min = ls * 0.4
+        while w > wmax and ls > ls_min + 1e-9:
+            ls = max(ls_min, ls - 0.05)
             w = self.largeur(s, cap, ls, sx, police)
         if w > wmax:
             cap2 = cap * wmax / w
@@ -291,6 +306,54 @@ class Dessin:
                     t += pas
                 reste = t - L
 
+    def rainure(self, p0, p1):
+        """Ligne de pli : exportée dans un calque RAINAGE (stylet ou molette de rainage)."""
+        self.rainages.append([tuple(p0), tuple(p1)])
+
+    def texte_courbe(self, s, cx, cy, R, cap, couche, haut=True, ls=0.35, police="futural"):
+        """Texte posé lettre par lettre sur un cercle de rayon R (centre des lettres sur le cercle),
+        lisible de gauche à droite en haut (haut=True) comme en bas. Renvoie l'angle couvert (degrés)."""
+        largeurs = [self.largeur(ch, cap, police=police) + ls for ch in s]
+        total = sum(largeurs) - ls
+        pos = -total / R / 2
+        for ch, w in zip(s, largeurs):
+            a = pos + (w - ls) / 2 / R
+            th = (-math.pi / 2 + a) if haut else (math.pi / 2 - a)
+            rot = math.degrees(th) + (90 if haut else -90)
+            if ch.strip():
+                self.texte_tourne(ch, cx + R * math.cos(th), cy + R * math.sin(th), cap, couche, rot, police)
+            pos += w / R
+        return math.degrees(total / R)
+
+    def remplir(self, couche, polys, motif="hachures", pas=None):
+        """Remplit une zone (polygones fermés, règle pair-impair) avec un motif traçable :
+        hachures, croisillons, lignes, iso (trame de triangles), points."""
+        if motif == "hachures":
+            self.hachurer(couche, polys, 45, pas or 1.1)
+        elif motif == "croisillons":
+            self.hachurer(couche, polys, 45, pas or 1.4)
+            self.hachurer(couche, polys, 135, pas or 1.4)
+        elif motif == "lignes":
+            self.hachurer(couche, polys, 0, pas or 1.0)
+        elif motif == "iso":
+            for a in (0, 60, 120):
+                self.hachurer(couche, polys, a, pas or 1.8)
+        elif motif == "points":
+            p = pas or 1.6
+            xs = [x for q in polys for x, _ in q]
+            ys = [y for q in polys for _, y in q]
+            y, rang = min(ys) + p / 2, 0
+            while y < max(ys):
+                x = min(xs) + p / 2 + (p / 2 if rang % 2 else 0)
+                while x < max(xs):
+                    if sum(point_dans_poly(x, y, q) for q in polys) % 2 == 1:
+                        self.cercle(couche, x, y, 0.18, 8)
+                    x += p
+                y += p * 0.866
+                rang += 1
+        else:
+            raise ValueError(f"motif inconnu : {motif}")
+
     def deplacer(self, dx=0.0, dy=0.0, couches=None):
         for nom in couches or list(self.couches):
             for p in self.couches[nom]:
@@ -316,6 +379,11 @@ class Dessin:
                         ok = ((x - self.w / 2) / rx) ** 2 + ((y - self.h / 2) / ry) ** 2 <= 1
                     else:
                         ok = marge <= x <= self.w - marge and marge <= y <= self.h - marge
+                        r = self.r if self.decoupe == "rrect" else 0.0
+                        if ok and r > marge:             # coins arrondis : test exact dans le quart de cercle
+                            cx = min(max(x, r), self.w - r)
+                            cy = min(max(y, r), self.h - r)
+                            ok = math.hypot(x - cx, y - cy) <= r - marge
                     if not ok:
                         fautes.append((nom, round(x, 2), round(y, 2)))
         return fautes
@@ -364,6 +432,11 @@ class Dessin:
             out.append(f'<path id="{i}_STYLO_{nom}" d="{self._d(polys)}" fill="none" '
                        f'stroke="{coul.get(nom, "#333")}" stroke-width="{sw}" stroke-linecap="round" '
                        f'stroke-linejoin="round"/>')
+        if self.rainages:
+            i += 1
+            out.append(f'<path id="{i}_RAINAGE_pli" d="{self._d(self.rainages)}" fill="none" '
+                       f'stroke="#8E44AD" stroke-width="{0.2 if not apercu else 0.15}" '
+                       + (' stroke-dasharray="1 0.8"' if apercu else "") + "/>")
         if d_cut and not apercu:
             out.append(f'<path id="{i + 1}_DECOUPE_contour" d="{d_cut}" fill="none" '
                        f'stroke="{COUL_DECOUPE}" stroke-width="0.25"/>')
@@ -378,7 +451,10 @@ class Dessin:
         return planche([[self.svg(couleurs, papier, apercu=True)]], chemin, self.w + 12, self.h + 12, dpi=dpi)
 
     def resume(self):
-        return {nom: len(p) for nom, p in self.couches.items() if p}
+        r = {nom: len(p) for nom, p in self.couches.items() if p}
+        if self.rainages:
+            r["rainage"] = len(self.rainages)
+        return r
 
 
 # ----------------------------------------------------------------------------- aperçus

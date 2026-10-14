@@ -13,25 +13,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 from cricut_stylo import Dessin, orn_rosace  # noqa: E402
 
 
-def texte_courbe(d, s, cx, cy, R, cap, couche, haut=True, ls=0.35):
-    """Lettres posées une à une le long d'un cercle (lecture de gauche à droite)."""
-    largeurs = [Dessin.largeur(ch, cap) + ls for ch in s]
-    total = sum(largeurs) - ls
-    span = total / R                                   # angle couvert (radians)
-    pos = -span / 2
-    for ch, w in zip(s, largeurs):
-        a = pos + (w - ls) / 2 / R
-        if haut:
-            th = -math.pi / 2 + a
-            rot = math.degrees(th) + 90
-        else:
-            th = math.pi / 2 - a
-            rot = math.degrees(th) - 90
-        if ch.strip():
-            d.texte_tourne(ch, cx + R * math.cos(th), cy + R * math.sin(th), cap, couche, rot)
-        pos += w / R
-
-
 def etiquette():
     D = 50.0
     d = Dessin(D, D, decoupe="cercle", couches=("noir", "bleu"))
@@ -44,8 +25,8 @@ def etiquette():
     d.poly("bleu", cercle(inn))
     d.hachurer("bleu", [cercle(ext), cercle(inn)], angle=45, pas=1.0)
     # textes courbes à l'intérieur de la couronne
-    texte_courbe(d, "FAIT MAIN", c, c, 16.6, 2.2, "noir", haut=True, ls=0.6)
-    texte_courbe(d, "ATELIER · 2026", c, c, 16.6, 2.0, "noir", haut=False, ls=0.45)
+    d.texte_courbe("FAIT MAIN", c, c, 16.6, 2.2, "noir", haut=True, ls=0.6)
+    d.texte_courbe("ATELIER · 2026", c, c, 16.6, 2.0, "noir", haut=False, ls=0.45)
     # centre
     d.texte("Miel", c, c + 1.8, 6.0, "noir", ls=0.3, ancre="middle", police="timesr")
     d.texte("DE MONTAGNE", c, c + 6.6, 1.8, "noir", ls=0.6, ancre="middle")

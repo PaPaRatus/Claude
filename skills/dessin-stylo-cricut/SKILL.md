@@ -44,7 +44,8 @@ ouverts ; avec l'aller-retour la fermeture est de longueur nulle), **accents fra
 
 ## Idées de décors qui marchent au stylo
 
-Hachures à 45° (coupe technique, ombre portée/relief), trames isométriques, guilloché
+Hachures à 45° (coupe technique, ombre portée/relief), motifs de remplissage (`remplir` :
+croisillons, lignes, trame iso, points), texte courbe (`texte_courbe`), guilloché
 (ondulations entrelacées), rosace de compas, cube isométrique ou de Necker, équerres de
 coin, cotations et flèches, traits mixtes d'axe, règle graduée, cadres art déco, vis à tête
 fendue, petites illustrations au trait (une courbe effilée = deux bords qui convergent).
@@ -55,6 +56,7 @@ Garder un seul élément fort par visuel ; la sobriété fait le « classe ».
 1. **Importer** le SVG, vérifier la taille affichée (proportions verrouillées ; si elle a
    changé, remettre la largeur exacte, tout suit).
 2. Chaque calque `n_STYLO_<couleur>` → opération **Stylo** (Draw), choisir la couleur ;
+   `RAINAGE_pli` (s'il existe) → **Rainage** (stylet ou molette) ;
    le calque `DECOUPE_contour` → **Découpe de base**.
 3. Tout sélectionner → **Attacher** : sans ça, Design Space répartit les calques sur le
    tapis et le dessin ne tombe plus dans la découpe.

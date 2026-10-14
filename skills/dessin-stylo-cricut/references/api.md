@@ -29,6 +29,8 @@ d = Dessin(w=85, h=55, decoupe="rrect", r=3.5, couches=("noir", "bleu"), couleur
 | `axe(couche, p0, p1)` | trait mixte (axe de dessin technique) |
 | `fleche(couche, pointe, direction, L=1.2)` | tête de flèche ouverte |
 | `hachurer(couche, polys, angle=45, pas=0.9)` | remplit des polygones fermés (pair-impair : anneaux et trous OK) |
+| `remplir(couche, polys, motif="hachures", pas=None)` | remplit une zone : `hachures`, `croisillons`, `lignes`, `iso` (trame de triangles), `points` |
+| `rainure(p0, p1)` | ligne de pli → calque `RAINAGE_pli` (opération Rainage de Design Space) |
 | `motif(couche, polys, x0, y0, largeur, boite=(100,100))` | place un logo défini en polylignes dans son repère ; renvoie les polylignes placées |
 | `ombre_hachuree(couche, polys, d=(0.95,0.95), pas=0.95)` | ombre portée hachurée sous des traits (effet relief / gravure) |
 | `deplacer(dx, dy, couches=None)` | translate tout (ou certaines couches) |
@@ -42,10 +44,12 @@ d = Dessin(w=85, h=55, decoupe="rrect", r=3.5, couches=("noir", "bleu"), couleur
 | `Dessin.largeur(s, cap, ls, sx, police)` | mesure sans dessiner |
 | `texte_ajuste(s, x, y, cap, couche, wmax, ...)` | condense puis réduit pour tenir dans `wmax` ; erreur sous `cap_min` |
 | `texte_tourne(s, x, y, cap, couche, angle)` | texte centré sur (x, y) puis tourné |
+| `texte_courbe(s, cx, cy, R, cap, couche, haut=True, ls=0.35)` | texte sur un cercle, lisible en haut (`haut=True`) comme en bas ; renvoie l'angle couvert |
 
 Polices utiles : `futural` (bâton, la plus lisible), `rowmand` (bâton double, plus grasse),
-`timesr` (à empattements), `scripts` (cursive). Texte sur un cercle : place chaque lettre
-avec `texte_tourne` à l'angle de la tangente (voir `exemple_etiquette.py`).
+`timesr` (à empattements), `scripts` (cursive). Caractères dessinés à la main en plus :
+accents français, œ, °, ·, •. `texte_ajuste` réduit dans l'ordre la condensation, puis
+l'espacement des lettres (jusqu'à 40 %), puis la taille.
 
 ## Ornements et cadres
 
@@ -55,13 +59,13 @@ Fonctions `orn_*(d, cx, cy, couche)` — renvoient la demi-largeur occupée (pou
 - `filet(d, x0, x1, y, ornement="losange", couche)` / `filet_vertical(d, x, y0, y1, ...)`
 - Cadres `CADRES[nom](d, couche)` : `simple`, `double`, `equerres` (cache le décalage
   tracé/découpe), `art_deco`, `vis` (plaque vissée).
-- `rrect_pts(x, y, w, h, r)`, `arc_pts(cx, cy, r, a0, a1, n)` : points utilitaires.
+- `rrect_pts(x, y, w, h, r)`, `arc_pts(cx, cy, r, a0, a1, n)`, `point_dans_poly(x, y, poly)` : utilitaires.
 
 ## Contrôle et export
 
 | Méthode | Effet |
 |---|---|
-| `verifier(marge=2.5)` | liste des points trop près du bord de découpe (vide = OK) |
+| `verifier(marge=2.5)` | liste des points trop près du bord de découpe (vide = OK) ; exact dans les coins arrondis et pour le cercle |
 | `svg(couleurs=None, papier=None, apercu=False)` | SVG Design Space (`apercu=True` : rendu réaliste sur papier, sans la découpe) |
 | `enregistrer(chemin)` | écrit le SVG Design Space |
 | `apercu_png(chemin, papier=PAPIER_BLANC, couleurs=None)` | aperçu PNG 300 dpi |
