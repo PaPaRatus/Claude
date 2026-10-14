@@ -196,24 +196,26 @@ def orn_losange(c, cx, cy):
     return 2.3
 
 
-def signature(nom=nom_cursive, ornement=orn_losange, deco=None):
+def signature(nom=nom_cursive, ornement=orn_losange, deco=None, mono_dx=0.0, filet_y=46.0,
+              point=True):
     c = Carte(55, 85)
     cx = 27.5
     mw = 21.0
-    mono = (cx - mw / 2, 9.0, mw)
+    mono = (cx - mw / 2 + mono_dx, 9.0, mw)
     if deco:
         deco(c, *mono)          # décor sous le monogramme (tracé avant lui)
     c.monogramme("accent", *mono)
     nom(c, cx)
     # filet avec ornement central
-    demi = ornement(c, cx, 46.0)
-    c.ligne("bleu", (12.0, 46.0), (cx - demi, 46.0))
-    c.ligne("bleu", (cx + demi, 46.0), (43.0, 46.0))
+    demi = ornement(c, cx, filet_y)
+    c.ligne("bleu", (12.0, filet_y), (cx - demi, filet_y))
+    c.ligne("bleu", (cx + demi, filet_y), (43.0, filet_y))
     for k, t in enumerate(("Bureau d’études TopSolid’Wood", "Impression 3D",
                            "Signalétique vinyle adhésif")):
         w = c.texte(t, cx, 52.2 + k * 4.2, 1.95, "noir", ls=0.04, sx=0.88, anchor="middle")
         assert w <= 47, (t, w)
-    c.cercle("accent", cx, 63.6, 0.35, 12)
+    if point:
+        c.cercle("accent", cx, 63.6, 0.35, 12)
     c.texte(TEL, cx, 69.6, 2.4, "noir", ls=0.14, anchor="middle")
     w = c.texte(MAIL, cx, 74.2, 1.95, "noir", ls=0.03, sx=0.88, anchor="middle")
     assert w <= 46, w
