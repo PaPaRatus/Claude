@@ -164,14 +164,40 @@ def filaire_3d():
 
 
 # ====================================================================== D
-def signature():
+def _nom_ajuste(c, txt, cx, y, cap, font, ls, layer="noir", wmax=44.0):
+    w = c.largeur(txt, cap, ls=ls, font=font)
+    if w > wmax:
+        cap *= wmax / w
+    c.texte(txt, cx, y, cap, layer, ls=ls, anchor="middle", font=font)
+
+
+def nom_cursive(c, cx):
+    _nom_ajuste(c, "Julien Martin", cx, 41.0, 5.2, "scripts", 0.15)
+
+
+def nom_capitales(c, cx):
+    _nom_ajuste(c, "MARTIN", cx, 38.2, 4.4, "futural", 1.7)
+    _nom_ajuste(c, "JULIEN", cx, 42.6, 2.4, "futural", 1.75, layer="bleu")
+
+
+def nom_romain(c, cx):
+    _nom_ajuste(c, "Julien Martin", cx, 40.8, 4.8, "timesr", 0.25)
+
+
+def nom_romain_capitales(c, cx):
+    _nom_ajuste(c, "JULIEN MARTIN", cx, 40.6, 3.7, "timesr", 0.8)
+
+
+def nom_baton_double(c, cx):
+    _nom_ajuste(c, "Julien Martin", cx, 40.8, 4.8, "rowmand", 0.2)
+
+
+def signature(nom=nom_cursive):
     c = Carte(55, 85)
     cx = 27.5
     mw = 21.0
     c.monogramme("accent", cx - mw / 2, 9.0, mw)
-    nom_w = c.largeur("Julien Martin", 5.2, ls=0.15, font="scripts")
-    cap = min(5.2, 5.2 * 44 / nom_w)
-    c.texte("Julien Martin", cx, 41.0, cap, "noir", ls=0.15, anchor="middle", font="scripts")
+    nom(c, cx)
     # filet avec losange central
     c.ligne("bleu", (12.0, 46.0), (25.2, 46.0))
     c.ligne("bleu", (29.8, 46.0), (43.0, 46.0))
@@ -191,6 +217,19 @@ def signature():
 # ====================================================================== export
 STYLES = [("B_vue-en-coupe", vue_en_coupe()), ("C_filaire-3D", filaire_3d()),
           ("D_signature", signature())]
+
+# variantes du nom pour la carte verticale : une planche de comparaison
+VARIANTES = [("D1_capitales", nom_capitales), ("D2_romain", nom_romain),
+             ("D3_romain-capitales", nom_romain_capitales), ("D4_baton-double", nom_baton_double)]
+cartes = []
+for name, fn in VARIANTES:
+    c = signature(fn)
+    c.check()
+    (OUT / f"carte_cricut_{name}.svg").write_text(c.svg(), encoding="utf-8")
+    cartes.append(c)
+render_png([[c.svg(paper="#FBFAF6", preview=True) for c in cartes],
+            [c.svg(pens=GEL, paper="#1C1F24", preview=True) for c in cartes]],
+           OUT / "apercu_D_variantes-nom.png", page_w=4 * 55 + 30, page_h=2 * 85 + 20)
 for name, c in STYLES:
     c.check()
     (OUT / f"carte_cricut_{name}.svg").write_text(c.svg(), encoding="utf-8")
