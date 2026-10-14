@@ -1,0 +1,18 @@
+{
+  "fichier": "julien_martin_portrait",
+  "orientation": "portrait",
+  "nom": "MARTIN",
+  "prenom": "JULIEN",
+  "activites": ["Bureau d’études TopSolid’Wood", "Impression 3D", "Signalétique vinyle adhésif"],
+  "telephone": "06 23 35 95 60",
+  "email": "martinjulien.be@gmail.com",
+  "statut": "MICRO-ENTREPRISE",
+  "monogramme": "JM",
+  "relief": true,
+  "ornement": "cube",
+  "cadre": "equerres",
+  "stylos": {"principal": "noir", "secondaire": "bleu"},
+  "variantes": [
+    {"fichier": "julien_martin_paysage", "orientation": "paysage", "cadre": "simple"}
+  ]
+}
