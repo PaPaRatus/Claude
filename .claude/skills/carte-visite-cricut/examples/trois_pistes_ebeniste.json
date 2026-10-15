@@ -1,0 +1,36 @@
+{
+  "fichier": "durand_monogramme",
+  "nom": "DURAND",
+  "prenom": "Sophie",
+  "titre": "ÉBÉNISTE",
+  "activites": [
+    "Agencement sur mesure",
+    "Restauration de meubles"
+  ],
+  "telephone": "07 12 34 56 78",
+  "email": "sophie@durand-bois.fr",
+  "statut": "ENTREPRISE INDIVIDUELLE",
+  "monogramme": "initiales",
+  "variantes": [
+    {
+      "fichier": "durand_embleme",
+      "gabarit": "embleme",
+      "orientation": "paysage",
+      "embleme_haut": "ATELIER DURAND",
+      "embleme_bas": "ÉBÉNISTERIE"
+    },
+    {
+      "fichier": "durand_typo",
+      "gabarit": "typographique",
+      "orientation": "paysage",
+      "monogramme": null,
+      "verso": {
+        "gabarit": "slogan",
+        "texte": [
+          "Le bois,",
+          "dans les règles de l’art"
+        ]
+      }
+    }
+  ]
+}
